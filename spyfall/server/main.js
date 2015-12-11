@@ -86,8 +86,6 @@ Games.find({"state": 'settingUp'}).observeChanges({
     });
 
     assignRoles(players, location);
-    
-    
 
     Games.update(id, {$set: {state: 'inProgress', locations: gameLocations, location: location, endTime: gameEndTime, paused: false, pausedTime: null}});
   }
