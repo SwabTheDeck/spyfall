@@ -84,8 +84,6 @@ function getAccessLink(){
     return;
   }
 
-  console.log(game);
-
   return Meteor.settings.public.url + game.accessCode + "/";
 }
 
