@@ -10,11 +10,6 @@ function cleanUpGamesAndPlayers(){
   });
 }
 
-function getRandomLocation(){
-  var locationIndex = Math.floor(Math.random() * locations.length);
-  return locations[locationIndex];
-}
-
 function shuffleArray(array) {
     for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
@@ -64,13 +59,25 @@ Meteor.publish('players', function(gameID) {
 
 Games.find({"state": 'settingUp'}).observeChanges({
   added: function (id, game) {
-    var location = getRandomLocation();
     var players = Players.find({gameID: id});
     var gameEndTime = moment().add(game.lengthInMinutes, 'minutes').valueOf();
 
     var spyIndex = Math.floor(Math.random() * players.count());
     var firstPlayerIndex = Math.floor(Math.random() * players.count());
-
+    
+    var numLocations = 4 + (3 * players.count());
+    if(numLocations > locations.length)
+    	numLocations = locations.length;
+    
+    var gameLocations = locations.slice(); //copy locations
+    while(gameLocations.length > numLocations && gameLocations.length > 0) {
+	    var removeLocationIndex = Math.floor(Math.random() * gameLocations.length);
+	    gameLocations.splice(removeLocationIndex, 1);
+    }  
+	
+	var locationIndex = Math.floor(Math.random() * gameLocations.length);
+    location = gameLocations[locationIndex];
+    
     players.forEach(function(player, index){
       Players.update(player._id, {$set: {
         isSpy: index === spyIndex,
@@ -79,7 +86,9 @@ Games.find({"state": 'settingUp'}).observeChanges({
     });
 
     assignRoles(players, location);
+    
+    
 
-    Games.update(id, {$set: {state: 'inProgress', location: location, endTime: gameEndTime, paused: false, pausedTime: null}});
+    Games.update(id, {$set: {state: 'inProgress', locations: gameLocations, location: location, endTime: gameEndTime, paused: false, pausedTime: null}});
   }
 });

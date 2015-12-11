@@ -84,6 +84,8 @@ function getAccessLink(){
     return;
   }
 
+  console.log(game);
+
   return Meteor.settings.public.url + game.accessCode + "/";
 }
 
@@ -485,7 +487,9 @@ Template.gameView.helpers({
     return players;
   },
   locations: function () {
-    return locations;
+    //return locations;
+    var game = getCurrentGame();
+    return game.locations;
   },
   gameFinished: function () {
     var timeRemaining = getTimeRemaining();
